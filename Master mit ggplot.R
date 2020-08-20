@@ -20,7 +20,15 @@ es gibt eine Verzerung vor 2018
 kl<-as_tsibble(y)
 kl<-kl%>%
   mutate(jahr=year(Month))
+kl$Letzte.Zeichen<-NULL
 kl$jahr<-  as.factor(kl$jahr)
+kl<-kl%>%
+  filter(!is.na(Bestellung))
+kl
+kl<-kl%>%
+filter(Month > c("2017-04-01"))
+
+
 #Die Daten mit einem Linearen Model
 Model2<-augment(lm_kl)%>%
   ggplot(aes(x=Month))+
@@ -31,9 +39,7 @@ Model2<-augment(lm_kl)%>%
   guides(Daten=guide_level(title = ""))
 Model2
 #############Boxplot
-bl<-kl%>%
-  filter(year(Month)>2017)
-bl
+
 #############################
 
 # 0. Define custom color palette and prepare the data
@@ -54,11 +60,14 @@ figure1 <- ggarrange(bxp, dp ,bxr, dr,
 
 figure1
 ###################################
-cl<-kl%>%
-filter(Month> c("2017-04-01"))
-cl$Letzte.Zeichen<-NULL
+
 ts.cl<-ts(cl$Bestellung,start=c(2017,05,01),freq=12)
 ts.kl<-ts(kl$Bestellung,,start=c(2016,10,01),freq=12)
+trend_air = ma(ts.kl, order = 12, centre = T)
+
+plot(as.ts(timeserie_air))
+lines(trend_air)
+plot(as.ts(trend_air))
 layout(1:2)
 acf(ts.cl,main="TS_Ohne Outlier")
 acf(ts.kl,main="TS_Mit Outlier")
@@ -86,10 +95,11 @@ figure3<-ggarrange(bxr, dr,
 figure3
 x
 ###############################
+kl
 kl %>% 
     ggpairs(.,
     legend = 1,
-    columns = c(2,4), 
+    columns = c(1,3), 
     mapping = ggplot2::aes(colour=jahr), 
     lower = list(continuous = wrap("smooth", alpha = 0.3, size=0.1))) +
     theme(legend.position = "bottom")  
@@ -127,9 +137,8 @@ kl %>%
 
 autoplot(kl,colour="blue")+xlab("Zeit")+ylab("Nachfragemenge")+ggtitle("Zeitreihe Kaffemachinen")+ theme(plot.title = element_text(hjust = 0.5))
 #####Model 1 Linear ohne Rend und seasonalität
-bl<-kl%>%
-  filter(year(Month)>2017)
-model_TSLM<-bl%>%
+
+model_TSLM<-kl%>%
   model(tslm=TSLM(Bestellung~Month ))
 #####Model1
 Model1<-augment(model_TSLM) %>%
@@ -156,7 +165,7 @@ augment( model_lm_tr_sea)%>%
 #die Resid hat kein mean 0 
 augment( model_lm_tr_sea)%>%
 ggplot(aes(x = .resid)) +
-geom_histogram(bins = 10) +
+geom_histogram(bins = 8) +
 ggtitle("Histogram of residuals")
 
     model_lm_tr_sea %>% gg_tsresiduals()
@@ -164,12 +173,12 @@ ggtitle("Histogram of residuals")
     # keine Bedeutung für Kaffe_nachfragehat
     augment(model_lm_tr_sea) %>%
   ggplot(aes(x = Bestellung, y = .fitted,
-             colour = factor(quarter(Month)))) +
+             colour = factor(year(Month)))) +
     geom_point() +
     ylab("Fitted") + xlab("Actual values") +
     ggtitle("Quarterly beer production") +
-    scale_colour_brewer(palette="Dark2", name="Quarter") +
-    geom_abline(intercept=0, slope=1)
+    scale_colour_brewer(palette="Dark2", name="Jahr") +
+    geom_abline(intercept=1, slope=1)
     ggpa
     ################################# Fourier nicht optimal##########
     fourier_kl <- kl %>%
@@ -223,14 +232,14 @@ augment(model_TSLM)%>%
 ####################################################  
 kl<-as_tsibble(kl)%>%
 update_tsibble(index = Month, regular = TRUE)
-
+str(kl)
 dcmp<- kl %>%
-  model(STL(Bestellung))
+  model(st=STL(Bestellung~Month))
 components(dcmp)
 kl%>%
   autoplot(Bestellung, color="blue")+
   autolayer(components(dcmp),trend ,color="red")+
-    xlab("Bestellung")+
+  xlab("Bestellung")+
   ylab("Zeit")+
   ggtitle("Kaffe-Maschine")
 ____Naiv Forecaste_________________________
@@ -244,8 +253,8 @@ kl #Dadurch bekommen die Werte
 
 
 kl %>%
-  model(NAIVE(Bestellung)) %>%
-  forecast(h = 6,bootstrap=TRUE) %>%
+model(NAIVE(Bestellung)) %>%
+forecast(h = 6,bootstrap=TRUE) %>%
 autoplot(kl)
 #Prediction intervals from bootstrapped residuals
 Fit <- kl%>%
@@ -269,7 +278,7 @@ gg_subseries(season_year)
 kl%>%
   autoplot(Bestellung, color="blue")+
   autolayer(components(dcmp),season_adjust ,color="red")+
-    xlab("Bestellung")+
+  xlab("Bestellung")+
   ylab("Zeit")+
   ggtitle("Kaffe-Maschine")
 
@@ -278,7 +287,7 @@ kl%>%#Die jahre werden explizit aussortiert und dargestellt
    gg_season(Bestellung,labels = "left")
 ################################# 
  kl %>%
-  model(STL(Bestellung ~ trend(window=10) + season(window='periodic'),#smaller window nuber allow for more rapid changes
+  model(STL(Bestellung ~ trend(window=13)+ season(window='periodic'),#smaller window nuber allow for more rapid changes
     robust = TRUE)) %>%
   components() %>%
   autoplot()
@@ -438,11 +447,101 @@ outlier.chicken
 plot(outlier.chicken)
 
 View(cl)
+##########################model with naive##########
+kl
+Bl<-kl
+Bl<-as.data.frame(Bl)
+ts.kl<-ts(Bl$Bestellung,start = c(2017,05,01),frequency =12)
+ts.kl
+plot(decompose(ts.kl),col="blue")
+t<-as_tsibble(ts.kl)
+fit<-stl(t,s.window = "periodic",robust = FALSE)
+fit%>% seasadj()%>%snaive()%>%autoplot()
+View(t)
+str(kl)
+
+cl<-kl
+cl$jahr<-NULL
+fil_cl <- fill_gaps(cl, .full = FALSE)
+cl<-cl%>%
+  mutate(Month=yearmonth(Month))
+as_tsibble(cl, key = Bestellung, index = Month)
+cl<-as_tsibble(cl,index=Month,key=Bestellung,regular=FALSE, .drop)
+fil_cl<-fil_cl%>%#Ersetzt alle NA werte mit 0
+mutate(Bestellung= ifelse(is.na(Bestellung) ,0,Bestellung))
+fil_cl%>%
+  group_by(month(Month))%>%
+  sum(Bestellung)%>%
+  ungroup()
+ dcmp <- cl%>%model(stl =STL(Bestellung))
+ components(dcmp)
+
+ components(dcmp)%>% gg_subseries(season_year)+ggtitle("Saisonaler Effekt_Kaffemaschine")
+cl%>%model(STL(Bestellung~ season(window="periodic"), robust=TRUE))%>%components()%>% autoplot(colour="blue")+ggtitle("Saisonaler Effekt")
+cl%>%model(STL(Bestellung~ season(window=13), robust=TRUE))%>%components()%>% autoplot(colour="blue")+ggtitle("STL decomposition: Kaffee_Maschine")
+
+components(dcmp)%>% gg_subseries(season_pro Jahr)
 #############################################
+#aditativ
+ggseasonplot(ts.kl, year.labels=TRUE, year.labels.left=TRUE) +
+  ylab("$ million") +
+  ggtitle("Saisonal Diagram: antidiabetic drug sales")
+ggseasonplot(ts.kl, polar=TRUE) +
+  ylab("Bestellung") +
+  ggtitle("Polar Saisonal Diagramm")
+ggsubseriesplot(ts.kl) +
+  ylab("$ million") +
+  ggtitle("Seasonal subseries plot: antidiabetic drug sales")
+##############################################
+Bestellung<- cl$Bestellung
+ma4<-ma(Bestellung, order=12, centre=FALSE)
+ma2x4 <- ma(Bestellung, order=12, centre=TRUE)
+f<-cbind(ma4,ma2x4)
+######Estimating the trend-cycle with seasonal data
+ts.kl %>% seas(x11="") -> fit
+autoplot(fit) +
+  ggtitle("Zerlegung der TS")
+#SEATS
+ts.kl %>% seas() %>%
+autoplot() +
+  ggtitle("SEATS decomposition of electrical equipment index")
+##stl
+ts.kl%>%
+  stl(t.window=13, s.window="periodic", robust=TRUE) %>%
+  autoplot()
+############################
+autoplot(ts.kl, series="Data") +
+  autolayer(trendcycle(fit), series="Trend") +
+  autolayer(seasadj(fit), series="Seasonally Adjusted") +
+  xlab("Year") + ylab("New orders index") +
+  ggtitle("Electrical equipment manufacturing (Euro area)") +
+  scale_colour_manual(values=c("gray","blue","red"),
+             breaks=c("Data","Seasonally Adjusted","Trend"))
+####################################################
 
-dcmp <- cl%>%
-  model(stl =STL(Bestellung))
-components(dcmp)
+fit <- stl(t, t.window=6, s.window="periodic",
+  robust=TRUE)
 
-components(Bestellung)%>% 
-  autoplot()+ xlab("Year")
+
+fit %>% seasadj()%>%
+naive() %>%
+  autoplot() + ylab("New orders index") +
+  ggtitle("Naive forecasts of seasonally adjusted data")
+
+fit %>% forecast(method="naive",h=10) %>%
+  autoplot() + ylab("New orders index")
+fit%>% predict(method="naive",h=10) 
+fit %>% forecast(method="naive",h=10)
+
+fit_f <- stlf(ts.kl, h = 24,
+  s.window = 13,
+  t.window = NULL,
+  robust = FALSE,
+  lambda = NULL,
+  biasadj = FALSE,)
+fit_f%>%
+  forecast(  method = c("ets", "arima", "naive", "rwdrift"),
+) %>%
+  autoplot() + ylab("New orders index")
+accuracy(fit_f)
+accuracy(fit)
