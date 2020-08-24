@@ -1,0 +1,143 @@
+---
+title: "Zeitreihenanalyse und Prognose"
+output: html_document
+---
+# Zeitreihenanalyse
+## R Package für die Analyse
+```{r packages, message=FALSE, warning=FALSE, include=FALSE}
+library(dplyr)
+library(tseries)
+library(zoo)
+library(markdown)
+library(rlang)
+library(tsibbledata)
+library(tsibble)
+library(xts)
+library(fpp)
+library(fpp3)
+library(fpp2)
+library(commonmark)
+library(rmarkdown)
+library(forecast)
+library(forcats)
+library(timeDate)
+library(tsoutliers)
+```
+
+
+```{r views}
+motor.df <- read.csv("~/Dokumente/R-Alle Data1/motororg.dat", header = TRUE) 
+```
+
+```{r }
+motor.df
+
+```
+
+### Ein Datum Spalte einfügen
+```{r Datum }
+motor.df<-motor.df%>%
+mutate(Date= seq.Date(from=as.Date("2016-01-01"), by="months",length.out = 48))%>%
+  mutate(jahr=as.factor(year(Date)))
+
+ 
+```
+
+``` {r  }
+motor_tsibble<-as_tsibble(motor.df,key=complaints,index = Date)
+
+```
+
+```{r}
+motor_tsibble
+
+```
+
+
+
+
+
+
+``` {r }
+Farben <- c("#E7B800", "#2E9FDF", "#FC4E07","red","green")
+
+p <- ggplot(motor.df, aes(x =jahr, y = complaints))
+bxp <- p + geom_boxplot(aes(color = jahr)) +
+  scale_color_manual(values = Farben)
+dp <- p + geom_dotplot(aes(color = jahr, fill = jahr),
+                       binaxis='y', stackdir='center') +
+  scale_color_manual(values = Farben) + 
+  scale_fill_manual(values = Farben)
+
+bxp
+dp
+
+```
+
+
+
+
+
+
+
+## Including Plots
+Hier wurde ein `tserie` kreiert
+
+```{r }
+ts.df<- ts(motor.df$complaints,start = c(2016,01,01), freq=12)
+plot(ts.df,col="blue",xlab="Zeit",ylab="Beschwerde_Anzahl")
+```
+### Stationarität Prüfung
+```{r Autokorrelation}
+layout(1:2)
+acf(ts.df)
+pacf(ts.df)
+```
+
+### Die Zerlegung der Time Serie in Trend, Saisonalität und Random, dabei kann man die jährliche Saisonalität erkennen und der senkende Trend
+```{r Time Serie zerlegung}
+plot(decompose(ts.motor))
+```
+### Wir haben eine deutliche 6 Monatige Saisonalität
+
+```{r Saisonalität identifizieren}
+plot(decom.mot$figure,type="b",ylab="Seasonality index")
+
+```
+### Die jährliche Saisonalität ist ganz klar zu erkennen, während die halb jährliche Saisonalität ist nicht ganz deutlich zu erkennen.
+```{r }
+ggseasonplot(ts.df)+ggtitle("Saisonalität-Darstellung")
+
+```
+```{r   }
+df.arima<-auto.arima(ts.df,seasonal = TRUE,
+           D=NA,d=NA,
+    ic = c("aicc", "aic", "bic"),
+  stepwise = TRUE,nmodels = 100,  seasonal.test = c("seas", "ocsb", "hegy", "ch"),
+ allowdrift = TRUE,
+  allowmean = TRUE,
+  lambda = TRUE,
+  biasadj = FALSE,
+  parallel = FALSE,
+  trace = FALSE)
+df.arima
+```
+### Die Resudien der Zeitreihe haben ein p_Value von 3%, sodass die Nullhypothese beibehalten kann. Das Diagramm bestätigt, dass die Residuen  weiß Rausch sind. Schließlich kann man mit der Prognose Anfangen
+
+```{r }
+checkresiduals(df.arima)
+
+```
+
+``` {r   Forecast }
+df.arima%>%forecast(h=12)%>%autoplot()
+```
+
+``` {r   forecast Table}
+df.arima%>%forecast(h=12)
+```
+
+
+
+
+
