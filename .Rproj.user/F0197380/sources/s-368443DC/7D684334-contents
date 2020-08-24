@@ -1,0 +1,519 @@
+The call grep(pattern,x) searches for a specified substring pattern in a
+vector x of strings. If x has n elements-that is, it contains n strings-then
+grep(pattern,x) will return a vector of length up to n. Each element of this
+vector will be the index in x at which a match of pattern as a substring of
+x[i]) was found.
+Here's an example of using grep:
+  > grep("Pole",c("Equator","North Pole","South Pole"))
+[1] 2 3
+> grep("pole",c("Equator","North Pole","South Pole"))
+integer(0)
+
+We will also take this opportunity
+to give the B and M values more informative labels using the labels parameter:
+  wbcd$Diagnosis <- factor(wbcd$Diagnosis, levels = c("B", "M"),
+                           labels = c("Benign", "Malignant"))
+
+
+Die Atributten Name zu ?ndern 
+colnames(wbcd) <- c("Diagnostik", "radius_mean")
+names(wbcd)[2]<-paste("radius_mean")
+names(wbcd)[3]<-paste("texture_mean")
+names(wbcd)[4]<-paste("perimeter_mean")
+names(wbcd)[7]<-paste("compactness_mean
+
+
+The lapply() function of R takes a list and applies a function to each element of the
+ list. As a data frame is a list of equal-length vectors, we can use lapply() to apply
+#normalize()to each feature in the data frame. The final step is to convert the list
+returned by lapply() to a data frame using the as.data.frame() function. The full
+ process looks like this:
+ Die Daten werden hier normalisiert duch die Function lapply
+
+                      
+ wbcd_n<-as.data.frame(lapply(wbcd[,2:31],normalize))
+oder mit Scal funktion
+wbcd_z <- as.data.frame(scale(wbcd[-1]))
+
+L?schen 
+The call substr(x,start,stop) returns the substring in the given character
+position range start:stop in the given string x. Here's an example:
+> substring("Equator",3,5)
+[1] "uat"
+
+
+Suchen 
+regexpr()
+The call regexpr(pattern,text) finds the character position of the first instance
+of pattern within text, as in this example:
+> regexpr("uat","Equator")
+[1] 3
+Sorting
+Ordinary numerical sorting of a vector can be done with the sort() function,
+                      as in this example:
+                      > x <- c(13,5,12,5)
+                      > sort(x)
+                      [1] 5 5 12 13
+                      > x
+
+######################################
+
+Selecting columns and filtering rows
+We're going to learn some of the most common dplyr functions: select(), filter(), mutate(), 
+group_by(), and summarize(). To select columns of a data frame, use select(). The first argument
+to this functionis the data frame (metadata), and the subsequent arguments are the columns
+to keep."
+select(Data.frame,Spalt1,spalte2,spalte3)
+To choose rows, use filter():
+
+filter(metadata, cit == "plus")
+filter(Data.Frame, Spalte=="Eigenschaft")
+Mit folgenden Befehl bekommen wir alle daten mit face== king
+eck[eck$face=="king", ]
+
+But what if you wanted to select and filter?
+  There are three ways to do this: use intermediate steps, nested functions, 
+or pipes. With the intermediate steps, you essentially create a temporary data frame and 
+use that as input to the next function. This can clutter up your workspace with lots of objects.
+You can also nest functions (i.e. one function inside of another). This is handy, but 
+can be difficult to read if too many functions are nested as the process from inside out.
+The last option, pipes, are a fairly recent addition to R. Pipes let you take the output of
+one function and send it directly to the next, which is useful when you need to many things
+to the same data set. Pipes in R look like %>% and are made available via the magrittr package
+installed as part of dplyr.
+#Data.Frame befestigen
+metadata %>%
+  #Plus von cit spalte aussortieren
+filter(cit == "plus") %>%
+  #die folgende spalten werden dargestellt
+select(sample, generation, clade)
+
+In the above we use the pipe to send the metadata data set first through filter,
+to keep rows where cit was equal to 'plus', and then through select to keep the
+sample and generation and clade columns. When the data frame is being passed to 
+the filter() and select() functions through a pipe, we don't need to include it 
+as an argument to these functions anymore. If we wanted to create a new object with this
+smaller version of the data we could do so by assigning it a new name:
+  #Data set umbenennen und fixieren
+  meta_citplus <- metadata %>%
+  #dann filtern
+  filter(cit == "plus") %>%
+  #die drei attribute aussortieren
+  select(sample, generation, clade)
+#Um die werte von spalte face von ace in splate von value zu herausfinden 
+deck3$value[eck3$face == "ace"]
+meta_citplus  
+ #hier fexiere ich eine  Data set
+g%>%
+  + mutate(genome = Channel *1e6)
+#mit mutate Fonktion kann ich eine Spalte neue einf?gen 
+#mit der Name genom
+k<-g%>%
+  + mutate(neu=Frozen/3) 
+k %>%
+  mutate(genome = Channel *1e6) %>%
+  filter(!is.na(Milk)) %>%
+ head
+
+  g<-head(customers)
+  
+  g %>%
+    group_by(Channel) %>%
+    summarize(n())
+  A tibble: 2 x 2
+       Channel `n()`
+        <int> <int>
+          1     1
+          2     5
+easiest way to ignore NA (the missing data) is to use na.rm=TRUE 
+(rm stands for remove).
+#Data set fixieren
+k<-g %>%
+  #Spalte grouppieren
+  group_by(Channel) %>%
+  #andere Spalte generieren mit neue name "mean_size",sodass die Durchschnitt von 
+  genome_size gerechnet wird.
+summarize(mean_size = mean(Milk, na.rm = TRUE), sum_size = sum(Milk))
+#oben generieren wir nach group by zwei neue Spalten einer mit sim und einer mit mean
+View(k)
+###########################################
+library(readr)
+library(TSclust)
+library(dtwclust)
+library(reshape2)
+library(ggplot2)
+library(dendextend)
+Hier werden die Spalten in Listen zusammengefasst. der date Spalte w?rde nicht ber?cksihtigt
+df_list = list()
+for( i in c(2:ncol(df))){
+  df_list[[i-1]] = df[,i]
+}
+# die liste umnennen
+names(df_list) = word_names
+pc = tsclust(df_list, type  = "partitional", k = 20L, 
+             distance = "L2", centroid = "pam", 
+             seed = 3247L, trace = TRUE,
+             args = tsclust_args(dist = list(window.size = 20L)))
+head(df_list)
+
+simil() gibt den Korrelationskoeffizienten (nach Pearson) als ?hnlichkeitsma? an.
+Ein Screeplot zeigt auf der x-Achse die Anzahl der Cluster k und auf der y-Achse die 
+Varianz innerhalb der Cluster (die es zu minimieren gilt). Das k, bei dem sich ein Knick
+befindet (sog. Ellenbogen), wird meist verwendet, da zus?tzliche Cluster kaum noch zur 
+Verringerung der Varianz beitragen. Um das Ergebnis der Gruppenfindung zu beurteilen, 
+eignet sich ein Silhouettenplot. Ein Silhouettenplot zeigt f?r jede Beobachtung i die
+Silhouettenbreite si, welche definiert ist als normierte Differenz der kleinsten Distanz 
+zu den Beobachtungen au?erhalb der eigenen Gruppe und dem Mittelwert der Distanzen innerhalb
+einer Gruppe. Die Silhouettenbreite si kann jeden Wert im Intervall 
+[???1,1] annehmen und wird folgenderma?en interpretiert.
+si=1: Die Beobachtung ist dem "richtigen" Cluster zugeordnet.
+si=0: Die Beobachtung h?tte ebenso gut einer anderen Gruppe zugeordnet werden k?nnen.
+si=???1: Die Beobachtung ist schlecht zugeordnet.
+#Ich arbeite mit Daten satz mtcars
+cars<- select(mtcars,mpg,disp)
+
+ggplot(cars, aes(mpg, disp)) + geom_point()
+#Die dist Funktion rechnet die Distanz zwischen mpg und disp spalte
+#dann die Funktion hclust rechnet die Cluster
+h.cluster <- cars %>% dist(., method = "euclidean") %>% 
+  hclust(., method = "ward.D")
+ggdendrogram(h.cluster)
+
+help("kmeans")
+??kmeans
+
+p.cluster <- cars %>% kmeans(., 2)
+ggplot(kunde, aes(Milk, Fresh, label = colnames(customers))) + 
+  scale_fill_discrete(name = "Cluster") + xlim(9,35) +
+  geom_label(aes(fill = p.cluster$cluster), colour = "white", 
+
+                 fontface = "bold", size=2)
+
+Kunde_b<-select(customers,Fresh,Channel,Milk)
+kunde_b%>%
+  #Spalte grouppieren
+  group_by(Channel) %>%
+  #andere Spalte generieren mit neue name "mean_size",sodass die Durchschnitt von 
+  genome_size gerechnet wird.
+summarize(sum_Milk = sum(Milk, na.rm = TRUE) as , sum_fresh = sum(Fresh))
+View(kunde_b)
+p.cluster <- kunde_b %>% kmeans(., 2)
+ggplot(kunde_b, aes(mpg, disp, label = rownames(cars))) + 
+  scale_fill_discrete(name = "Cluster") + xlim(9,35) +
+  geom_label(aes(fill = p.cluster$cluster), colour = "white", 
+             
+             fontface = "bold", size=2)
+help("augment")
+kunde_z <- as.data.frame(scale(kunde))
+View(kunden_z)
+kunde_n<-as.data.frame(lapply(kunde,normalize))
+View(kunde1)
+kunde1<- select(kunde_z,Milk,Fresh)%>%
+plot(kunde1)
+#######################################################
+kunde1_cluster<-pvclust(kunde_n, method.hclust="average",
+        method.dist="correlation", use.cor="pairwise.complete.obs",
+        nboot=1000, parallel=FALSE,
+        store=FALSE, weight=FALSE, iseed=NULL, quiet=FALSE)
+#########################################################
+
+plot(kunde1_cluster)
+ seplot(kunde1_cluster)
+pvrect(kunde1_cluster, alpha=0.95)
+############################################
+Bei der berechneten Distanzmatrix wird nur die untere
+Dreiecksmatrix angezeigt, da die Matrixsymmetrisch ist 
+und alle Eintr ??age auf der Hauptdiagonalen 0 sein m ??ussen.Um nu
+n zu illustrieren, wie die Daten auf Basis ihrer Distanzen geclustert
+werden, verwenden wirdie"average"Methode
+Die  anderen  Methoden  k ??onnen  (und  sollte
+                                                                                                                                                                                                                                                                        n)  ganz  analog  ausprobiertwerden.
+dist_kunde<-dist(kunde)
+dist_kunde
+dist_kunde<-dist(kunde_z)
+dist_kunde
+Dieprint-Methode liefert eine sehr knappe Zusammenfassung. Informativer
+ist das zur Hierarchiegeh ??orige Dendogramm, das durch dieplot-Methode erzeugt
+wird.R> plot(gsa.hclust)Dies  zeigt  deutlich,  da?  man  zumindest  3  Cluster
+vermuten  w??urde,  n ??amlich  (Spanien,  USA),( ??Osterreich, Schweiz, Ungarn, Deutschland
+), und die ??ubrigen L ??ander. Um diese drei Cluster nochhervorzuheben, kann der Befehlrect.hclustverwendet werden, dem man
+neben dem"hclust"-Objekt auch noch die gew ??u
+nschte Anzahl Cluster ??ubergibt>
+ hclust(kunde.hclust, k = 4)
+kunde.hclust <- hclust(dist_kunde, method = "single")
+######################################
+Die daten Saz?tz umdrehen f?r die cluster, das hei?t Spalten 
+werden jetzt als zeilen gesehen
+h<-data.frame(t(kunde))
+dist_h<-dist(scale(h))
+h.hclust <- hclust(dist_h, method = "single")
+plot(h.hclust)
+ 
+es ist wie pvcluster Fonktion
+
+Die Farbe sind f?r die Channel
+  
+  plot(kunde_b$sum_Milk~kunde_b$sum_fresh,
+col=rainbow(5)[kunde_b$Channel-4],
+sub = "Blau ist Channel 1",
+xlab="Fresh",ylab="Milk")
+  ######################################
+  SQL
+ d<- sqldf('select Fresh, Milk from kunde ')
+ my.df <- data.frame(# Daten erzeugen
+   x=rnorm(20, 50, 10),
+   group=factor(sort(rep(c("A", "B"), 10))))
+ tapply(# eigene Funktion anwenden
+   X     = my.df$x, # WerteINDE
+   X = my.df$group, # Gruppierung
+   FUN   = function(x){(x-mean(x))/sd(x)}
+   # (Wert - arithmetisches Mittel) durch Standardabweichung)
+   tapply(# R Funktion anwenden
+     X     = my.df$x, # WerteINDE
+     X = my.df$group, # Gruppierung
+     FUN   = mean # Mittelwert
+     ###############################################
+     arten <- data.frame(# Datenobjekt erzeugen
+       spezies= paste(rep("Art",10), 1:10),# 10x Art 1, Art 2, ...
+       anzahl=sample(10)# 10 Zufallsdaten
+       )
+     #  data.frame() End
+ row.names(arten)<-arten[,1]
+ arten
+ 
+ x = c(18,23,25,35,65,54,34,56,72,19,23,42,18,39,37)
+ y = c(202,186,187,180,156,169,174,172,153,199,193,174,198,183,178)
+
+plot(x,y)
+abline(lm(y ~x))
+# Regressionsgerade
+yx <- lm(y ~x)## diagnostische Plots, s. Regressionsanalyse
+summary(yx)
+plot(yx)
+
+#package name is tidy
+#Es geht um Wandlung von ein Matrix zu Column Data frame
+#Function spread() is inverse from function gather()
+Jahr= as.integer( c(2012,2014,2014,2000,2001,2012))
+Land=as.factor(   c("DE","FR","AUS","SCHW","FR","DE"))
+Menge=as.integer(  c(23,45,36,69,100,50))
+Date=seq(as.Date("2012-01-01"), as.Date("2012-01-06"), by="days")
+cases<-data.frame(Jahr,Land,Menge)
+cases
+ Jahr Land Menge
+1 2012   DE    23
+2 2014   FR    45
+3 2014  AUS    36
+4 2000 SCHW    69
+5 2001   FR   100
+6 2008   DE    50
+cases1<-spread(cases,Land,Menge)
+Jahr AUS DE  FR SCHW
+1 2000  NA NA  NA   69
+2 2001  NA NA 100   NA
+3 2008  NA 50  NA   NA
+4 2012  NA 23  NA   NA
+5 2014  36 NA  45   NA
+cases2<-gather(cases1,"Land","Menge",2:5)
+1  2000  AUS    NA
+2  2001  AUS    NA
+3  2008  AUS    NA
+4  2012  AUS    NA
+5  2014  AUS    36
+6  2000   DE    NA
+7  2001   DE    NA
+8  2008   DE    50
+9  2012   DE    23
+10 2014   DE    NA
+11 2000   FR    NA
+12 2001   FR   100
+13 2008   FR    NA
+14 2012   FR    NA
+15 2014   FR    45
+16 2000 SCHW    69
+17 2001 SCHW    NA
+18 2008 SCHW    NA
+19 2012 SCHW    NA
+20 2014 SCHW    NA
+cases3<-data.frame(Jahr,Land,Menge,Date)
+cases3
+Jahr Land Menge       Date
+1 2012   DE    23 2012-01-01
+2 2014   FR    45 2012-01-02
+3 2014  AUS    36 2012-01-03
+4 2000 SCHW    69 2012-01-04
+5 2001   FR   100 2012-01-05
+6 2008   DE    50 2012-01-06
+cases3_1<-separate(cases3,Date,c("year","month","day"), sep = "-")
+cases3_1
+##############dplyr###################
+select(cases3,Jahr,Menge)#only this column
+select(cases3,-Date)#select without Date
+select(cases3,Jahr:Menge)#select from Jahr to Menge
+filter(cases3,Jahr>2001)#select all Data, where Jahr >2001
+
+filter(cases3, Jahr>2001, Land %in% c("DE","FR"))#select all Data, where Jahr >2001 and Land equal DE and FR
+mutate(cases3,Menge1=Menge*2,Menge2=Menge/2)#add a two new Column with the Name "Menge1" and "Menge2" and Value Menge*2 and Menge/2
+mutate(cases3, Menge1=cumsum(Menge),Menge2=cummean(Menge),Aufsteigend1 =dense_rank(Menge),Aufsteigend2=min_rank(Menge),D=percent_rank(Menge))#The function cumsum and dense_rank and min_rank for culomn Menge ranking smoll to bigand percent_rank for ABC_analysis
+cases3 %>% summarise(mean=mean(Menge),Median=median(Menge),Varia=var(Menge))#the %>% to fix the data.frame
+arrange(cases3,Menge)#This function order the value of column Menge smull to big
+arrange(cases3,desc(Menge))#This function order the value of column Menge big to smull
+cases3 %>%
+  arrange(desc(Jahr))%>%
+  filter(Menge >= 45) %>%
+  select(Jahr,Menge)%>%
+  mutate(Menge1=cumsum(Menge))
+ Jahr Menge Menge1
+1 2014    45     45
+2 2008    50     95
+3 2001   100    195
+4 2000    69    264
+cases3%>% 
+  group_by(Land)%>%
+  summarise(mean=mean(Menge),sum=sum(Menge),n=n())
+ Land   mean   sum     n
+  <fct> <dbl> <int> <int>
+1 AUS    36      36     1
+2 DE     36.5    73     2
+3 FR     72.5   145     2
+4 SCHW   69      69     1
+cases3%>% 
+  group_by(Land,Jahr)%>%#use groub by 
+  summarise(mean=mean(Menge),sum=sum(Menge),n=n())
+ Land   Jahr  mean   sum     n
+  <fct> <int> <dbl> <int> <int>
+1 AUS    2014  36      36     1
+2 DE     2012  36.5    73     2
+3 FR     2001 100     100     1
+4 FR     2014  45      45     1
+5 SCHW   2000  69      69     1
+names(survey)
+"Sex"    "Wr.Hnd" "NW.Hnd" "W.Hnd"  "Fold"   "Pulse"  "Clap"   "Exer"   "Smoke" 
+"Height" "M.I"    "Age"
+select(survey,Age,Pulse,Smoke)
+i <- match("Age", names(survey))#einfach umbenen
+j <- match("Pulse", names(survey))
+head(survey[, -(i:j)])
+select(survey, ends_with("e"))#alle Variable, die mit e Enden
+select(survey, starts_with("P"))
+filter(survey, Height > 180 & Sex=="Female")
+mutate(survey, Aler_neu=Age+2)
+rename(survey,Schreibhand=Wr.Hnd)
+View(survey)
+mutate(survey, year = as.POSIXlt(date) )
+scale(Credit$`Credit amount`)
+subset(x=hDatensatzi, subset=hIndexvektori, select=hSpalteni)
+subset(myDf1, sex == "f", select=-sex)
+
+
+N<-12
+sex<-c("f", "m","m","m","m","m","m","m","f","f","f","f")
+group<-sample(rep(c("CG", "WL", "T"), 4), N, replace=FALSE)
+age<-sample(18:35, N, replace=TRUE)
+iq<-round(rnorm(N, mean=100, sd=15))
+rating<-round(runif(N, min=0, max=6))
+mydf1<-data.frame(id=1:N, sex, group, age, iq, rating)
+ Global_new<-  global %>% #Table MAtrix1:2 to 2:1 change
+  pivot_longer(
+    cols = starts_with("V"), 
+    names_to = "Value", 
+    names_prefix = "V",
+    names_transform = list(Value = as.integer),
+    values_to = "rank",
+    values_drop_na = TRUE,
+  )
+   View(Global_new)
+   kl<-subset(credit, Age<20)
+   nrow(kl)
+   sum(is.na(kl))
+   table(credit$Job,exclude=FALSE)#without NA Value
+  min<-tapply(credit$Age, credit$Sex, min)
+  max<-tapply(credit$Age, credit$Sex, max)
+  var<-tapply(credit$Age, credit$Sex, var)
+  summary_table<-data.frame(cbind(min,max,var))#we bind  a data frame
+      min max      var
+female  19  75 138.1650
+male    20  75 120.7534
+
+  female   male 
+    19     20 
+    
+    t.test(Age~ Sex, data = credit, var.equal=TRUE)#Hypothesen test with Alpha 0.5
+   
+    AnovaAge<-aov(Age~ Sex, data = credit)#test ob eine Signifikant Age-Unterschied zwischen Female and male Kunden
+  summary(AnovaAge)
+  print_retail <- aus_retail %>%
+  filter(Industry == "Newspaper and book retailing") %>%
+  group_by(Industry) %>%#Grouppieren nach Industriy und index
+  index_by(Year = year(Month)) %>%
+  summarise(Turnover = sum(Turnover))
+    
+  
+   #tsibble data
+   harvest <- tsibble(
+  year = c(2010, 2011, 2013, 2011, 2012, 2014),
+  fruit = rep(c("kiwi", "cherry"), each = 3),
+  kilo = sample(1:10, size = 6),
+  key = fruit, index = year
+)
+   harvest
+   fill_gaps(harvest, .full = TRUE)
+   # gaps as default `NA`
+fill_gaps(harvest, .full = TRUE)
+fill_gaps(harvest, .full = start())
+fill_gaps(harvest, .full = end())
+full_harvest <- fill_gaps(harvest, .full = FALSE)
+full_harvest
+
+# replace gaps with a specific value
+harvest %>%
+  fill_gaps(kilo = 0L)
+
+# replace gaps using a function by variable
+harvest %>%
+  fill_gaps(kilo = sum(kilo))
+
+# replace gaps using a function for each group
+harvest %>%
+  group_by_key() %>%
+  fill_gaps(kilo = sum(kilo))
+#Bind zwei tabellen
+#Bind a two difference Table   
+  fit <- aus_airpassengers %>%#Tabelle1
+  left_join(guinea_rice, by = "Year") %>%#Tabelle 2
+  model(TSLM(Passengers ~ Production))#linear model of the two Features
+report(fit)
+#transformation of a Time Serie to TSibble
+elec_equip <- as_tsibble(fpp2::elecequip)
+
+as_tsibble(key = Umsatz, index = Month) 
+###################################################
+bl
+bl %>% 
+ggpairs(.,
+               legend = 2,
+               columns = c(2,4), 
+               mapping = ggplot2::aes(colour=jahr), 
+               lower = list(continuous = wrap("smooth", alpha = 0.3, size=0.1))) +
+               theme(legend.position = "bottom")  
+
+bl
+  level=c("2018","2019","2020")
+
+ggpairs(data=bl, # data.frame with variables
+        columns= c(2,4), # columns to plot, default to all.
+        title="tips data", # title of the plot
+           mapping = ggplot2::aes(colour=jahr),
+                     
+        colour = "jahr") # aesthetics,
+#Zudem ist es möglich, Objekte von gebe man statt ’ascii=FALSE ein in einer ASCII-Datei abzulegen. Dann
+save(x,file="Daten3.csv", ascii=TRUE).
+#Die Formatierung in ist sehr rudimentär. Nutzt man jedoch L A TEX, so kann
+#man zwecks Formatierung einer Datenmatrix in den Befehl
+tex.table(fit$time.series)
+nutzen. Dieser Befehl ist in Paket
+library(cwhmisc)
+#Mit dem Paket ’xts’ lassen sich
+jedoch Tagesdaten zu Wochen- oder Monatsdaten transformieren. Lade das Pa-
+ket ’xts’ und nutze den Befehl
+to.period(EURUSD, "weeks").
